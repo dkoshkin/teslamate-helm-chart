@@ -1,20 +1,15 @@
 apiVersion: v2
-appVersion: v1.22.0
+appVersion: v1.27.2
 description: A self-hosted data logger for your Tesla 🚘
 name: teslamate
-version: 3.7.0
+version: 0.1.0
 keywords:
   - teslamate
   - tesla
-home: https://github.com/k8s-at-home/charts/tree/master/charts/stable/teslamate
+home: https://github.com/dkoshkin/teslamate-helm-chart
 icon: https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Tesla_Motors.svg/793px-Tesla_Motors.svg.png
 sources:
   - https://github.com/adriankumpf/teslamate
-dependencies:
-- name: postgresql
-  version: 10.4.0
-  repository: https://charts.bitnami.com/bitnami
-  condition: postgresql.enabled
 maintainers:
-  - name: billimek
-    email: jeff@billimek.com
+  - name: dkoshkin
+    email: dimitrikoshkin@gmail.com

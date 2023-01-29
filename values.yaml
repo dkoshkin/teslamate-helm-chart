@@ -2,7 +2,8 @@ replicaCount: 1
 
 image:
   repository: teslamate/teslamate
-  tag: 1.22.0
+  # Overrides the image tag whose default is the chart appVersion
+  tag: ""
   pullPolicy: IfNotPresent
 
 nameOverride: ""
@@ -10,10 +11,13 @@ fullnameOverride: ""
 
 timeZone: UTC
 
+# The MQTT function within TeslaMate allows useful values to be published to an MQTT broker.
+# This is useful in allowing other automation platforms to consume data from TeslaMate.
+# ref: https://docs.teslamate.org/docs/integrations/mqtt/
 mqtt:
   enabled: false
 
-  # mqtt broker hostname - REQUIRED if mqtt is enabled
+  # MQTT broker hostname - REQUIRED if mqtt is enabled
   host:
 
   username:
@@ -28,9 +32,10 @@ mqtt:
 checkOrigin: false
 
 # Host part used for generating URLs throughout the app
+# required
 virtualHost:
 
-# valid values are 'en' or 'de'
+# Valid values are 'en' or 'de'
 locale: en
 
 # Probes configuration
@@ -46,18 +51,45 @@ probes:
     failureThreshold: 30
     periodSeconds: 10
 
+# Extra environment variables that will be pass onto deployment pods
+# env:
+#   AWS_ROLE_ARN: arn:aws:iam::123456789000:role/iam-role-name-here
+#   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+#   AWS_REGION: us-east-1
+
+env: {}
+
+# The names of secrets in the same kubernetes namespace which contain values to be added to the environment
+# Each entry should contain a name key, and can optionally specify whether the secret must be defined with an optional key.
+# Name is templated.
+envFromSecrets: []
+# - name: secret-name
+#   optional: true
+
+# The names of conifgmaps in the same kubernetes namespace which contain values to be added to the environment
+# Each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key.
+# Name is templated.
+# ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#configmapenvsource-v1-core
+envFromConfigMaps: []
+# - name: configmap-name
+#   optional: true
+
 service:
   type: ClusterIP
   port: 4000
 
 ingress:
   enabled: false
+  # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
+  # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
+  # ingressClassName: nginx
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   path: /
-  hosts:
-    - chart-example.local
+  pathType: ImplementationSpecific
+  hosts: []
+  #  - chart-example.local
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -81,21 +113,15 @@ tolerations: []
 
 affinity: {}
 
-# Configuration values for the postgresql dependency.
-# ... for more options see https://github.com/bitnami/charts/tree/master/bitnami/postgresql
-postgresql:
+# Configuration values for a remote PostgreSQL database
+remotePostgresql:
   enabled: true
-  postgresqlUsername: teslamate
-  postgresqlPassword: teslamate
-  postgresqlDatabase: teslamate
-  image:
-    repository: postgres
-    tag: 12.1
-  postgresqlDataDir: "/data/pgdata"
-  persistence:
-    enabled: true
-    storageClass:
-    accessModes:
-      - ReadWriteOnce
-    size: 8Gi
-    mountPath: "/data/"
+
+  # If enabled must provide a secretName or individual values
+  secretName:
+
+  host:
+  user:
+  password:
+  database:
+

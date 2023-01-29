@@ -22,23 +22,27 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion | trimPrefix "v" }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            {{- if .Values.postgresql.postgresqlUsername }}
-            - name: DATABASE_USER
-              value: {{ .Values.postgresql.postgresqlUsername | quote }}
-            {{- end }}
-            {{- if .Values.postgresql.postgresqlPassword }}
-            - name: DATABASE_PASS
-              value: {{ .Values.postgresql.postgresqlPassword | quote }}
-            {{- end }}
-            {{- if .Values.postgresql.postgresqlDatabase }}
-            - name: DATABASE_NAME
-              value: {{ .Values.postgresql.postgresqlDatabase | quote }}
-            {{- end }}
+            {{- if .Values.remotePostgresql.enabled }}
+            {{- if .Values.remotePostgresql.host }}
             - name: DATABASE_HOST
-              value: {{ template "teslamate.postgresql.fullname" . }}
+              value: {{  required "remotePostgresql.host is required" .Values.remotePostgresql.host | quote }}
+            {{- end }}
+            {{- if .Values.remotePostgresql.user }}
+            - name: DATABASE_USER
+              value: {{  required "remotePostgresql.user is required" .Values.remotePostgresql.user | quote }}
+            {{- end }}
+            {{- if .Values.remotePostgresql.password }}
+            - name: DATABASE_PASS
+              value: {{  required "remotePostgresql.password is required" .Values.remotePostgresql.password | quote }}
+            {{- end }}
+            {{- if .Values.remotePostgresql.database }}
+            - name: DATABASE_NAME
+              value: {{  required "remotePostgresql.database is required" .Values.remotePostgresql.database | quote }}
+            {{- end }}
+            {{- end }}
             {{- if .Values.mqtt.enabled }}
             - name: MQTT_HOST
               value: {{ .Values.mqtt.host | quote }}
@@ -64,12 +68,36 @@ spec:
             {{- end }}
             {{- if .Values.virtualHost }}
             - name: VIRTUAL_HOST
-              value: {{ .Values.virtualHost | quote }}
+              value: {{ required "virtualHost is required"  .Values.virtualHost | quote }}
             {{- end }}
             {{- if .Values.locale }}
             - name: LOCALE
               value: {{ .Values.locale | quote }}
             {{- end }}
+            {{- range $key, $value := .Values.env }}
+            - name: "{{ tpl $key $ }}"
+              value: "{{ tpl (print $value) $ }}"
+            {{- end }}
+          {{- if or .Values.envFromSecrets .Values.envFromConfigMaps }}
+          envFrom:
+            {{- if .Values.remotePostgresql.enabled }}
+            {{- if .Values.remotePostgresql.secretName }}
+            - secretRef:
+                name: {{ .Values.remotePostgresql.secretName | quote }}
+                optional: false
+            {{- end }}
+            {{- end }}
+            {{- range .Values.envFromSecrets }}
+            - secretRef:
+                name: {{ tpl .name $ }}
+                optional: {{ .optional | default false }}
+            {{- end }}
+            {{- range .Values.envFromConfigMaps }}
+            - configMapRef:
+                name: {{ tpl .name $ }}
+                optional: {{ .optional | default false }}
+            {{- end }}
+          {{- end }}
           ports:
             - name: http
               containerPort: 4000
