@@ -125,3 +125,24 @@ remotePostgresql:
   password:
   database:
 
+# Configuration values for automated PostgreSQL database backups
+backup:
+  enabled: false
+
+  # Every day at midnight
+  schedule: "0 0 * * *"
+  restartPolicy: OnFailure
+
+  # The names of secrets in the same kubernetes namespace which contain values to be added to the environment
+  # Each entry should contain a name key, and can optionally specify whether the secret must be defined with an optional key.
+  # Name is templated.
+  envFromSecrets: []
+  # - name: secret-name
+  #   optional: true
+
+  # Set where to save the backup data
+  # Current options: aws
+  destination: aws
+
+  aws:
+    image: eeshugerman/postgres-backup-s3:15

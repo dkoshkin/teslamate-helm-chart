@@ -1,0 +1,27 @@
+{{- if .Values.backup.enabled -}}
+{{- $fullName := include "teslamate.fullname" . -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $fullName }}-backup
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if eq .Values.backup.destination "aws" }}
+          containers:
+            - name: aws-s3-backup
+              image: "{{ .Values.backup.aws.image }}"
+              {{- if .Values.backup.envFromSecrets }}
+              envFrom:
+                {{- range .Values.backup.envFromSecrets }}
+                - secretRef:
+                    name: {{ tpl .name $ }}
+                    optional: {{ .optional | default false }}
+                {{- end }}
+              {{- end }}
+          {{- end }}
+          restartPolicy: {{ .Values.backup.restartPolicy }}
+{{- end }}

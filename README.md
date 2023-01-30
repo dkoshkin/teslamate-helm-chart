@@ -68,11 +68,18 @@ N/A
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
 | checkOrigin | bool | `false` |  |
+| backup | object | `{}` |  |
+| backup.enabled | bool | `false` |  |
+| backup.schedule | string | `"0 0 * * *"` |  |
+| backup.restartPolicy | string | `OnFailure` |  |
+| backup.envFromSecrets | object | `[]` |  |
+| backup.s3 | object | `{}` |  |
+| backup.s3.image | object | `"eeshugerman/postgres-backup-s3:15"` |  |
 | database.host | string | `nil` |  |
 | database.user | string | `"teslamate"` |  |
 | database.password | string | `"teslamate"` |  |
 | database.database | string | `"teslamate"` |  |
-| env | string | `{}` |  |
+| env | object | `{}` |  |
 | envFromSecrets | object | `[]` |  |
 | envFromConfigMaps | object | `[]` |  |
 | fullnameOverride | string | `""` |  |
