@@ -1,7 +1,5 @@
 # teslamate
 
-![Version: 3.6.5](https://img.shields.io/badge/Version-3.6.5-informational?style=flat-square) ![AppVersion: v1.22.0](https://img.shields.io/badge/AppVersion-v1.22.0-informational?style=flat-square)
-
 A self-hosted data logger for your Tesla 🚘
 
 **This chart is not maintained by the upstream project and any issues with the chart should be raised [here](https://github.com/dkoshkin/teslamate-helm-chart/issues/new/choose)**
