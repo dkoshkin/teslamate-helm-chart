@@ -15,7 +15,7 @@ TODO: add Grafana and PostgreSQL
 ## TL;DR
 
 ```console
-helm repo add teslamate https://dkoshkin.github.com/teslamate-helm-chart
+helm repo add teslamate https://dkoshkin.github.io/teslamate-helm-chart
 helm repo update
 helm install teslamate teslamate/teslamate
 ```
