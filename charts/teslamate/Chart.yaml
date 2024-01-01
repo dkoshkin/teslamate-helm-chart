@@ -11,8 +11,8 @@ icon: https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Tesla_Motors.svg
 sources:
   - https://github.com/adriankumpf/teslamate
 maintainers:
-  - name: dkoshkin
-    email: dimitrikoshkin@gmail.com
+  - name: Dimitri Koshkin
+    email: dimitri.koshkin@gmail.com
 dependencies:
 - name: grafana
   version: 7.0.19
