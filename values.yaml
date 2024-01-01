@@ -146,3 +146,9 @@ backup:
 
   aws:
     image: eeshugerman/postgres-backup-s3:15
+
+grafana:
+  # override the image with the Teslama Grafana image that has the charts baked in
+  image:
+    repository: teslamate/grafana
+    tag: 1.28.2
