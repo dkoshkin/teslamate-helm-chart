@@ -1,43 +1,32 @@
 replicaCount: 1
-
 image:
   repository: teslamate/teslamate
   # Overrides the image tag whose default is the chart appVersion
   tag: ""
   pullPolicy: IfNotPresent
-
 nameOverride: ""
 fullnameOverride: ""
-
 timeZone: UTC
-
 # The MQTT function within TeslaMate allows useful values to be published to an MQTT broker.
 # This is useful in allowing other automation platforms to consume data from TeslaMate.
 # ref: https://docs.teslamate.org/docs/integrations/mqtt/
 mqtt:
   enabled: false
-
   # MQTT broker hostname - REQUIRED if mqtt is enabled
   host:
-
   username:
   password:
-
   # Enables TLS if true
   tls:
   # Accepts invalid certificates if true
   tlsAcceptInvalid:
-
 # Configures whether to check the origin header or not.
 checkOrigin: false
-
 # Host part used for generating URLs throughout the app
 # required
 virtualHost:
-
 # Valid values are 'en' or 'de'
 locale: en
-
 # Probes configuration
 probes:
   liveness:
@@ -50,15 +39,12 @@ probes:
     initialDelaySeconds: 15
     failureThreshold: 30
     periodSeconds: 10
-
 # Extra environment variables that will be pass onto deployment pods
 # env:
 #   AWS_ROLE_ARN: arn:aws:iam::123456789000:role/iam-role-name-here
 #   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
 #   AWS_REGION: us-east-1
-
 env: {}
-
 # The names of secrets in the same kubernetes namespace which contain values to be added to the environment
 # Each entry should contain a name key, and can optionally specify whether the secret must be defined with an optional key.
 # Name is templated.
@@ -77,15 +63,14 @@ envFromConfigMaps: []
 service:
   type: ClusterIP
   port: 4000
-
 ingress:
   enabled: false
   # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
   # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
   # ingressClassName: nginx
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
   path: /
   pathType: ImplementationSpecific
   hosts: []
@@ -94,45 +79,36 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #  cpu: 100m
-  #  memory: 128Mi
-  # requests:
-  #  cpu: 100m
-  #  memory: 128Mi
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#  cpu: 100m
+#  memory: 128Mi
+# requests:
+#  cpu: 100m
+#  memory: 128Mi
 
 nodeSelector: {}
-
 tolerations: []
-
 affinity: {}
-
 # Configuration values for a remote PostgreSQL database
 remotePostgresql:
   enabled: true
-
   # If enabled must provide a secretName or individual values
   secretName:
-
   host:
   user:
   password:
   database:
-
 # Configuration values for automated PostgreSQL database backups
 backup:
   enabled: false
-
   # Every day at midnight
   schedule: "0 0 * * *"
   restartPolicy: OnFailure
-
   # The names of secrets in the same kubernetes namespace which contain values to be added to the environment
   # Each entry should contain a name key, and can optionally specify whether the secret must be defined with an optional key.
   # Name is templated.
@@ -143,10 +119,8 @@ backup:
   # Set where to save the backup data
   # Current options: aws
   destination: aws
-
   aws:
     image: eeshugerman/postgres-backup-s3:15
-
 grafana:
   # override the image with the Teslama Grafana image that has the charts baked in
   image:
