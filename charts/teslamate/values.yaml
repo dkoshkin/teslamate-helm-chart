@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: teslamate/teslamate
   # Overrides the image tag whose default is the chart appVersion
-  tag: ""
+  tag: v1.28.2
   pullPolicy: IfNotPresent
 
 nameOverride: ""
