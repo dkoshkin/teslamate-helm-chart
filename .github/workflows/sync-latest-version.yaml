@@ -1,0 +1,128 @@
+name: Sync latest Teslamate version
+
+on:
+  push:
+    branches:
+      - feat-sync-app
+  # schedule:
+  #   - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  compare-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      latest-version: ${{ steps.parse-latest-version.outputs.release }}
+      latest-version-string: v${{ steps.parse-latest-version.outputs.release }}
+      version-comparison: ${{ steps.compare-versions.outputs.comparison-result }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+ 
+      - name: Get latest Teslamate version
+        id: fetch-latest-version
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const { data } = await github.rest.repos.getLatestRelease({
+              owner: 'teslamate-org',
+              repo: 'teslamate',
+            })
+            // remove the 'v' prefix since the image tag expects it without
+            return data.tag_name.replace("v", "")
+
+      - name: Parse latest Teslamate version
+        uses: madhead/semver-utils@latest
+        id: parse-latest-version
+        with:
+          version: ${{steps.fetch-latest-version.outputs.result}}
+          # fail on non-semantic versions
+          lenient: false
+
+      - name: Get current Teslamate version
+        id: get-current-version
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.appVersion' charts/teslamate/Chart.yaml
+
+      - name: Compare versions
+        uses: madhead/semver-utils@latest
+        id: compare-versions
+        with:
+          version: ${{steps.parse-latest-version.outputs.release}}
+          compare-to: ${{steps.get-current-version.outputs.result}}
+          # fail on non-semantic versions
+          lenient: false
+
+  current-chart-version:
+    runs-on: ubuntu-latest
+    outputs:
+      # increment the current version by 1 patch
+      next-chart-version: ${{ steps.parse-chart-version.outputs.inc-patch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get current chart version
+        uses: mikefarah/yq@master
+        id: get-chart-version
+        with:
+          cmd: yq '.version' charts/teslamate/Chart.yaml
+
+      - name: Parse current chart version
+        uses: madhead/semver-utils@latest
+        id: parse-chart-version
+        with:
+          version: ${{steps.get-chart-version.outputs.result}}
+          # fail on non-semantic versions
+          lenient: false
+
+  trigger-update:
+    if: ${{ needs.compare-versions.outputs.version-comparison == '>' }}
+    needs:
+    - compare-versions
+    - current-chart-version
+    permissions:
+      pull-requests: write
+      contents: write
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Update Chart.yaml with a new Chart version
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.version = "${{needs.current-chart-version.outputs.next-chart-version}}"' 'charts/teslamate/Chart.yaml'
+
+      - name: Update Chart.yaml with latest Testlamate version
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.appVersion = "${{needs.compare-versions.outputs.latest-version-string}}"' 'charts/teslamate/Chart.yaml'
+
+      - name: Update values.yaml with latest Testlamate version
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.grafana.image.tag = "${{needs.compare-versions.outputs.latest-version}}"' 'charts/teslamate/values.yaml'
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "feat: bump Teslamate to ${{needs.compare-versions.outputs.latest-version-string}}"
+          title: "feat: bump Teslamate to ${{needs.compare-versions.outputs.latest-version-string}}"
+          body: |
+            Release: https://github.com/teslamate-org/teslamate/releases/tag/${{needs.compare-versions.outputs.latest-version-string}}
+          branch: bump-teslamate-to-${{needs.compare-versions.outputs.latest-version-string}}
+          base: feat-sync-app
