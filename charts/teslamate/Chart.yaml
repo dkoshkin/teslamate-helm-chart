@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: v1.28.5
+appVersion: v1.32.0
 description: A self-hosted data logger for your Tesla 🚘
 name: teslamate
-version: 0.3.2
+version: 0.4.0
 keywords:
   - teslamate
   - tesla
@@ -15,5 +15,5 @@ maintainers:
     email: dimitri.koshkin@gmail.com
 dependencies:
 - name: grafana
-  version: 7.0.19
+  version: 8.9.0
   repository: https://grafana.github.io/helm-charts
