@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: v1.28.5
+appVersion: v1.32.0
 description: A self-hosted data logger for your Tesla 🚘
 name: teslamate
-version: 0.3.2
+version: 0.3.3
 keywords:
   - teslamate
   - tesla
